@@ -1,0 +1,20 @@
+﻿<div class="jumbotron-fluid bg-light">
+    <div class="row align-items-center">
+        <div class="col-sm">
+            <p class="display-4">Price History Differential</p>
+        </div>
+        <div class="col-sm"></div>
+        <div class="col-sm">
+            <div class="input-group input-daterange" data-provide="datepicker" id="priceHistoryDifferentialDatePicker" disabled>
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Date Range</span>
+                </div>
+                <input type="text" class="form-control" id="priceHistoryDifferentialDatePickerStartDate" value="@ViewBag.DefaultDateTimeRange.Start.ToShortDateString()" disabled />
+                <span class="input-group-text">to</span>
+                <input type="text" class="form-control" id="priceHistoryDifferentialDatePickerEndDate" value="@ViewBag.DefaultDateTimeRange.End.ToShortDateString()" disabled />
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered" id="priceHistoryDifferential"></table>
+</div>
+<script src="~/stocks/index/priceHistoryDifferential.js"></script>

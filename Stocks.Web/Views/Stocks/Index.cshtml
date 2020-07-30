@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "/Stocks/Index";
+    await Html.RenderPartialAsync("_Ticker");
+    await Html.RenderPartialAsync("_PriceHistory");
+    await Html.RenderPartialAsync("_PriceHistoryDifferential");
+}
+
+<script>
+    connection.start().then(() => {
+        // SignalR not running hub methods concurrently
+        $('#ticker').DataTable().row().select();
+        connection.invoke('GetPriceHistoryDifferentialAsync', priceHistoryDifferentialDateRange);
+        console.log('invoke: GetPriceHistoryDifferentialAsync');
+    });
+</script>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IModule.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stocks.Entities\Stocks.Entities.csproj" />
+    <ProjectReference Include="..\Stocks.Models\Stocks.Models.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Authors>Aaron Montgomery</Authors>
+    <Product>Stocks</Product>
+    <Company />
+    <Copyright>2020</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Accounts.cs" />
+    <Compile Remove="Authorization.cs" />
+    <Compile Remove="Controllers\AnalysisController.cs" />
+    <Compile Remove="Orders.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stocks.Entities\Stocks.Entities.csproj" />
+    <ProjectReference Include="..\Stocks.Models\Stocks.Models.csproj" />
+    <ProjectReference Include="..\Stocks.Modules\Stocks.Modules.csproj" />
+  </ItemGroup>
+
+
+</Project>

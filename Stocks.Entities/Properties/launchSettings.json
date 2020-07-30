@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Stocks.Entities": {
+      "commandName": "Project"
+    }
+  }
+}

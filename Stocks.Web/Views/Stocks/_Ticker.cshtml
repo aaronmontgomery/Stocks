@@ -1,0 +1,8 @@
+﻿<div class="jumbotron-fluid bg-light">
+    <p class="display-4">Ticker Symbols</p>
+    <table class="table table-striped table-bordered" id="ticker"></table>
+</div>
+<script>
+    var ticker = @Html.Raw(ViewData["Ticker"]);
+</script>
+<script src="~/stocks/index/ticker.js"></script>

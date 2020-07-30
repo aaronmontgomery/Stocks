@@ -1,0 +1,21 @@
+﻿<div class="jumbotron-fluid bg-white">
+    <div class="row align-items-center">
+        <div class="col-sm">
+            <p class="display-4">Price History</p>
+        </div>
+        <div class="col-sm"></div>
+        <div class="col-sm">
+            <div class="input-group input-daterange" data-provide="datepicker" id="priceHistoryDatePicker" disabled>
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Date Range</span>
+                </div>
+                <input type="text" class="form-control" id="priceHistoryDatePickerStartDate" value="@ViewBag.DefaultDateTimeRange.Start.ToShortDateString()" disabled />
+                <span class="input-group-text">to</span>
+                <input type="text" class="form-control" id="priceHistoryDatePickerEndDate" value="@ViewBag.DefaultDateTimeRange.End.ToShortDateString()" disabled />
+            </div>
+        </div>
+    </div>
+    <p class="display-4 text-center" id="symbol"></p>
+    <div id="priceHistory"></div>
+</div>
+<script src="~/stocks/index/priceHistory.js"></script>
