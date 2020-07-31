@@ -12,6 +12,9 @@ INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('Exchange', 'Nasdaq', 'http
 INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('Exchange', 'NYSE', 'https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nyse&render=download');
 INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('Exchange', 'AMEX', 'https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=amex&render=download');
 
+-- TDAmeritrade Auth
+--https://auth.tdameritrade.com/oauth?client_id= %40AMER.OAUTHAP&response_type=code&redirect_uri=https%3A%2F%2Flocalhost%3A44397%2Fapi%2Fauthorization%2Fpostaccesstoken&lang=en-us
+
 -- Symbol Lists
 --ftp://ftp.nasdaqtrader.com/symboldirectory/nasdaqtraded.txt
 --http://investexcel.net/all-yahoo-finance-stock-tickers/
