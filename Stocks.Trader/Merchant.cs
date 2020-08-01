@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace Stocks.Trader
                         Models.PriceDelta priceDelta = priceDeltasList.Single(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Instrument.Symbol == instrument.Symbol);
                         if (priceDelta.Position == null)
                         {
-                            // account does not have a position for the instrument
+
                         }
 
                         else
@@ -63,50 +62,40 @@ namespace Stocks.Trader
             IEnumerable<Models.PriceDelta> priceDeltas = null;
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
+                priceDeltas = await GetInstrumentsAsync(priceDeltas);
+                foreach (Models.PriceDelta priceDelta in priceDeltas)
                 {
-                    priceDeltas = await GetInstrumentsAsync(priceDeltas);
-                    foreach (Models.PriceDelta priceDelta in priceDeltas)
+                    Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
+                    priceDelta.Quotes.Enqueue(quote);
+                    if (priceDelta.Quotes.Count > 1)
                     {
-                        Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
-                        priceDelta.Quotes.Enqueue(quote);
-                        if (priceDelta.Quotes.Count > 1)
+                        Models.TdAmeritrade.Quote.Quote previousQuote = priceDelta.Quotes.Dequeue();
+                        priceDelta.QuoteDelta = quote.Mark - previousQuote.Mark;
+                        priceDelta.QuoteDeltaPercent = (quote.Mark / previousQuote.Mark - 1) * 100;
+                        if (priceDelta.QuoteDelta > 0)
                         {
-                            Models.TdAmeritrade.Quote.Quote previousQuote = priceDelta.Quotes.Dequeue();
-                            priceDelta.QuoteDelta = quote.Mark - previousQuote.Mark;
-                            priceDelta.QuoteDeltaPercent = (quote.Mark / previousQuote.Mark - 1) * 100;
-                            if (priceDelta.QuoteDelta > 0)
-                            {
-                                priceDelta.DeltaIndex++;
-                            }
-
-                            if (priceDelta.QuoteDelta < 0)
-                            {
-                                priceDelta.DeltaIndex--;
-                            }
+                            priceDelta.DeltaIndex++;
                         }
 
-                        if (priceDelta.Position != null)
+                        if (priceDelta.QuoteDelta < 0)
                         {
-                            priceDelta.PositionDelta = quote.Mark - priceDelta.Position.AveragePrice;
-                            priceDelta.PositionDeltaPercent = (quote.Mark / priceDelta.Position.AveragePrice - 1) * 100;
-                            if (Math.Abs(priceDelta.PositionDeltaPercent) > 10)
-                            {
-                                //priceDelta.StopPrice = quote.AskPrice;
-                            }
+                            priceDelta.DeltaIndex--;
                         }
+                    }
+
+                    if (priceDelta.Position == null)
+                    {
+
+                    }
+
+                    else
+                    {
+                        priceDelta.PositionDelta = quote.Mark - priceDelta.Position.AveragePrice;
+                        priceDelta.PositionDeltaPercent = (quote.Mark / priceDelta.Position.AveragePrice - 1) * 100;
                     }
                 }
 
-                catch (Exception exception)
-                {
-
-                }
-
-                finally
-                {
-                    await Task.Delay(60000, stoppingToken);
-                }
+                await Task.Delay(60000, stoppingToken);
             }
         }
     }
