@@ -19,11 +19,13 @@ namespace Stocks.Trader
         public override async Task StartAsync(CancellationToken stoppingToken)
         {
             await base.StartAsync(stoppingToken);
+            _logger.LogInformation("started: {time}", DateTime.UtcNow);
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
             await base.StopAsync(stoppingToken);
+            _logger.LogInformation("stopped: {time}", DateTime.UtcNow);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -31,8 +33,10 @@ namespace Stocks.Trader
             IEnumerable<Models.PriceDelta> priceDeltas = null;
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTime.UtcNow);
                 priceDeltas = await Merchant.GetPriceDeltasAsync(priceDeltas);
+                _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
+                priceDeltas = await Merchant.GetQuotesAsync(priceDeltas);
+                _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
                 await Task.Delay(60000, stoppingToken);
                 /*
                 Models.TdAmeritrade.Account.Instrument instrument = new Models.TdAmeritrade.Account.Instrument()
