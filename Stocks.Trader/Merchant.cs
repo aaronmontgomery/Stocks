@@ -8,6 +8,56 @@ namespace Stocks.Trader
 {
     public static class Merchant
     {
+        static async Task<IEnumerable<Models.PriceDelta>> GetInstrumentsAsync(IEnumerable<Models.PriceDelta> priceDeltas = null)
+        {
+            List<Models.PriceDelta> priceDeltasList = priceDeltas == null ? new List<Models.PriceDelta>() : priceDeltas.ToList();
+            Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
+            IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
+            IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist> accountWatchlists = await Modules.TdAmeritrade.Watchlist.GetWatchlistsForMultipleAccountsAsync();
+            foreach (Models.TdAmeritrade.Account.Account account in accounts)
+            {
+                IEnumerable<Models.TdAmeritrade.Account.Instrument> positionInstruments = account.SecuritiesAccount.Positions.Select(x => x.Instrument);
+                IEnumerable<Models.TdAmeritrade.Account.Instrument> stocksWatchlistInstruments = accountWatchlists.Single(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Name == "Stocks").WatchlistItems.Select(x => x.Instrument).Where(x => !positionInstruments.Any(y => y.Symbol == x.Symbol));
+                IEnumerable<Models.TdAmeritrade.Account.Instrument> instruments = positionInstruments.Concat(stocksWatchlistInstruments);
+                List<Models.PriceDelta> priceDeltasToRemove = priceDeltasList.Where(x => x.AccountId == account.SecuritiesAccount.AccountId && !instruments.Any(y => y.Symbol == x.Instrument.Symbol)).ToList();
+                foreach (Models.PriceDelta priceDelta in priceDeltasToRemove)
+                {
+                    priceDeltasList.Remove(priceDelta);
+                }
+
+                foreach (Models.TdAmeritrade.Account.Instrument instrument in instruments)
+                {
+                    if (priceDeltasList.Any(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Instrument.Symbol == instrument.Symbol))
+                    {
+                        Models.PriceDelta priceDelta = priceDeltasList.Single(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Instrument.Symbol == instrument.Symbol);
+                        if (priceDelta.Position == null)
+                        {
+                            // account does not have a position for the instrument
+                        }
+
+                        else
+                        {
+                            priceDeltasList[priceDeltasList.IndexOf(priceDelta)].Position = account.SecuritiesAccount.Positions.Single(x => x.Instrument.Symbol == instrument.Symbol);
+                        }
+                    }
+
+                    else
+                    {
+                        Models.PriceDelta priceDelta = new Models.PriceDelta()
+                        {
+                            Instrument = instrument,
+                            AccountId = account.SecuritiesAccount.AccountId,
+                            Position = account.SecuritiesAccount.Positions.SingleOrDefault(x => x.Instrument.Symbol == instrument.Symbol),
+                            Quotes = new Queue<Models.TdAmeritrade.Quote.Quote>()
+                        };
+                        priceDeltasList.Add(priceDelta);
+                    }
+                }
+            }
+
+            return priceDeltasList.AsEnumerable();
+        }
+
         public static async Task RunAsync(CancellationToken stoppingToken)
         {
             IEnumerable<Models.PriceDelta> priceDeltas = null;
@@ -42,7 +92,7 @@ namespace Stocks.Trader
                             priceDelta.PositionDeltaPercent = (quote.Mark / priceDelta.Position.AveragePrice - 1) * 100;
                             if (Math.Abs(priceDelta.PositionDeltaPercent) > 10)
                             {
-                                priceDelta.StopPrice = quote.AskPrice;
+                                //priceDelta.StopPrice = quote.AskPrice;
                             }
                         }
                     }
@@ -58,41 +108,6 @@ namespace Stocks.Trader
                     await Task.Delay(60000, stoppingToken);
                 }
             }
-        }
-
-        private static async Task<IEnumerable<Models.PriceDelta>> GetInstrumentsAsync(IEnumerable<Models.PriceDelta> priceDeltas = null)
-        {
-            List<Models.PriceDelta> priceDeltasList = priceDeltas == null ? new List<Models.PriceDelta>() : priceDeltas.ToList();
-            Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
-            IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
-            IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist> accountWatchlists = await Modules.TdAmeritrade.Watchlist.GetWatchlistsForMultipleAccountsAsync();
-            foreach (Models.TdAmeritrade.Account.Account account in accounts)
-            {
-                IEnumerable<Models.TdAmeritrade.Account.Instrument> positionInstruments = account.SecuritiesAccount.Positions.Select(x => x.Instrument);
-                IEnumerable<Models.TdAmeritrade.Account.Instrument> stocksWatchlistInstruments = accountWatchlists.Single(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Name == "Stocks").WatchlistItems.Select(x => x.Instrument).Where(x => !positionInstruments.Any(y => y.Symbol == x.Symbol));
-                IEnumerable<Models.TdAmeritrade.Account.Instrument> instruments = positionInstruments.Concat(stocksWatchlistInstruments);
-                foreach (Models.TdAmeritrade.Account.Instrument instrument in instruments)
-                {
-                    if (priceDeltasList.Any(x => x.AccountId == account.SecuritiesAccount.AccountId && x.Instrument.Symbol == instrument.Symbol))
-                    {
-
-                    }
-
-                    else
-                    {
-                        Models.PriceDelta priceDelta = new Models.PriceDelta()
-                        {
-                            Instrument = instrument,
-                            AccountId = account.SecuritiesAccount.AccountId,
-                            Position = account.SecuritiesAccount.Positions.SingleOrDefault(x => x.Instrument.Symbol == instrument.Symbol),
-                            Quotes = new Queue<Models.TdAmeritrade.Quote.Quote>()
-                        };
-                        priceDeltasList.Add(priceDelta);
-                    }
-                }
-            }
-
-            return priceDeltasList.AsEnumerable();
         }
     }
 }
