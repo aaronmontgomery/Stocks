@@ -35,10 +35,14 @@ namespace Stocks.Trader
             {
                 Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
                 IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
-                priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(accounts, priceDeltas);
-                _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
-                priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
-                _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
+                foreach (Models.TdAmeritrade.Account.Account account in accounts)
+                {
+                    priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account, priceDeltas);
+                    _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
+                    priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
+                    _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
+                }
+
                 await Task.Delay(60000, stoppingToken);
                 /*
                 Models.TdAmeritrade.Account.Instrument instrument = new Models.TdAmeritrade.Account.Instrument()
