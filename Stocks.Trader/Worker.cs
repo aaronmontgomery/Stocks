@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -15,12 +16,24 @@ namespace Stocks.Trader
             _logger = logger;
         }
 
+        public override async Task StartAsync(CancellationToken stoppingToken)
+        {
+            await base.StartAsync(stoppingToken);
+        }
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            await base.StopAsync(stoppingToken);
+        }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            IEnumerable<Models.PriceDelta> priceDeltas = null;
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTime.UtcNow);
-                await Merchant.RunAsync(stoppingToken);
+                priceDeltas = await Merchant.GetPriceDeltasAsync(priceDeltas);
+                await Task.Delay(60000, stoppingToken);
                 /*
                 Models.TdAmeritrade.Account.Instrument instrument = new Models.TdAmeritrade.Account.Instrument()
                 {

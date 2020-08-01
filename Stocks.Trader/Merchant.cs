@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stocks.Trader
@@ -57,46 +56,42 @@ namespace Stocks.Trader
             return priceDeltasList.AsEnumerable();
         }
 
-        public static async Task RunAsync(CancellationToken stoppingToken)
+        public static async Task<IEnumerable<Models.PriceDelta>> GetPriceDeltasAsync(IEnumerable<Models.PriceDelta> priceDeltas = null)
         {
-            IEnumerable<Models.PriceDelta> priceDeltas = null;
-            while (!stoppingToken.IsCancellationRequested)
+            priceDeltas = await GetInstrumentsAsync(priceDeltas);
+            foreach (Models.PriceDelta priceDelta in priceDeltas)
             {
-                priceDeltas = await GetInstrumentsAsync(priceDeltas);
-                foreach (Models.PriceDelta priceDelta in priceDeltas)
+                Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
+                priceDelta.Quotes.Enqueue(quote);
+                if (priceDelta.Quotes.Count > 1)
                 {
-                    Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
-                    priceDelta.Quotes.Enqueue(quote);
-                    if (priceDelta.Quotes.Count > 1)
+                    Models.TdAmeritrade.Quote.Quote previousQuote = priceDelta.Quotes.Dequeue();
+                    priceDelta.QuoteDelta = quote.Mark - previousQuote.Mark;
+                    priceDelta.QuoteDeltaPercent = (quote.Mark / previousQuote.Mark - 1) * 100;
+                    if (priceDelta.QuoteDelta > 0)
                     {
-                        Models.TdAmeritrade.Quote.Quote previousQuote = priceDelta.Quotes.Dequeue();
-                        priceDelta.QuoteDelta = quote.Mark - previousQuote.Mark;
-                        priceDelta.QuoteDeltaPercent = (quote.Mark / previousQuote.Mark - 1) * 100;
-                        if (priceDelta.QuoteDelta > 0)
-                        {
-                            priceDelta.DeltaIndex++;
-                        }
-
-                        if (priceDelta.QuoteDelta < 0)
-                        {
-                            priceDelta.DeltaIndex--;
-                        }
+                        priceDelta.DeltaIndex++;
                     }
 
-                    if (priceDelta.Position == null)
+                    if (priceDelta.QuoteDelta < 0)
                     {
-
-                    }
-
-                    else
-                    {
-                        priceDelta.PositionDelta = quote.Mark - priceDelta.Position.AveragePrice;
-                        priceDelta.PositionDeltaPercent = (quote.Mark / priceDelta.Position.AveragePrice - 1) * 100;
+                        priceDelta.DeltaIndex--;
                     }
                 }
 
-                await Task.Delay(60000, stoppingToken);
+                if (priceDelta.Position == null)
+                {
+
+                }
+
+                else
+                {
+                    priceDelta.PositionDelta = quote.Mark - priceDelta.Position.AveragePrice;
+                    priceDelta.PositionDeltaPercent = (quote.Mark / priceDelta.Position.AveragePrice - 1) * 100;
+                }
             }
+
+            return priceDeltas;
         }
     }
 }
