@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Stocks.Trader
+namespace Stocks.Modules
 {
     public static partial class Merchant
     {
-        public static async Task<IEnumerable<Models.PriceDelta>> GetPriceDeltasAsync(IEnumerable<Models.PriceDelta> priceDeltas = null)
+        public static async Task<IEnumerable<Models.PriceDelta>> GetPriceDeltasAsync(IEnumerable<Models.TdAmeritrade.Account.Account> accounts, IEnumerable<Models.PriceDelta> priceDeltas = null)
         {
             List<Models.PriceDelta> priceDeltasList = priceDeltas == null ? new List<Models.PriceDelta>() : priceDeltas.ToList();
-            Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
-            IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
-            IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist> accountWatchlists = await Modules.TdAmeritrade.Watchlist.GetWatchlistsForMultipleAccountsAsync();
+            IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist> accountWatchlists = await TdAmeritrade.Watchlist.GetWatchlistsForMultipleAccountsAsync();
             foreach (Models.TdAmeritrade.Account.Account account in accounts)
             {
                 IEnumerable<Models.TdAmeritrade.Account.Instrument> positionInstruments = account.SecuritiesAccount.Positions.Select(x => x.Instrument);

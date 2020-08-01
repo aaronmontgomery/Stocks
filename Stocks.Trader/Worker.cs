@@ -33,9 +33,11 @@ namespace Stocks.Trader
             IEnumerable<Models.PriceDelta> priceDeltas = null;
             while (!stoppingToken.IsCancellationRequested)
             {
-                priceDeltas = await Merchant.GetPriceDeltasAsync(priceDeltas);
+                Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
+                IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
+                priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(accounts, priceDeltas);
                 _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
-                priceDeltas = await Merchant.GetQuotesAsync(priceDeltas);
+                priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
                 _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
                 await Task.Delay(60000, stoppingToken);
                 /*

@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Stocks.Trader
+namespace Stocks.Modules
 {
     public static partial class Merchant
     {
-        public static async Task<IEnumerable<Models.PriceDelta>> GetQuotesAsync(IEnumerable<Models.PriceDelta> priceDeltas = null)
+        public static async Task<IEnumerable<Models.PriceDelta>> GetQuotesAsync(IEnumerable<Models.PriceDelta> priceDeltas)
         {
             foreach (Models.PriceDelta priceDelta in priceDeltas)
             {
-                Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
+                Models.TdAmeritrade.Quote.Quote quote = await TdAmeritrade.Quote.GetQuoteAsync(priceDelta.Instrument.Symbol);
                 priceDelta.Quotes.Enqueue(quote);
                 if (priceDelta.Quotes.Count > 1)
                 {
