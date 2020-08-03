@@ -20,55 +20,32 @@ namespace Stocks.Trader
         {
             await base.StartAsync(stoppingToken);
             _logger.LogInformation("started: {time}", DateTime.UtcNow);
+            await Task.CompletedTask;
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
             await base.StopAsync(stoppingToken);
             _logger.LogInformation("stopped: {time}", DateTime.UtcNow);
+            await Task.CompletedTask;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            IEnumerable<Models.PriceDelta> priceDeltas = null;
             while (!stoppingToken.IsCancellationRequested)
             {
                 Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
                 IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
+                Dictionary<string, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<string, IEnumerable<Models.PriceDelta>>();
                 foreach (Models.TdAmeritrade.Account.Account account in accounts)
                 {
-                    priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account, priceDeltas);
-                    _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
-                    priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
-                    _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
+                    IEnumerable<Models.PriceDelta> priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account);
+                    _logger.LogInformation("GetPriceDeltasAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
+                    accountPriceDeltas[account.SecuritiesAccount.AccountId] = await Modules.Merchant.GetQuotesAsync(priceDeltas);
+                    _logger.LogInformation("GetQuotesAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
                 }
 
                 await Task.Delay(60000, stoppingToken);
-                /*
-                Models.TdAmeritrade.Account.Instrument instrument = new Models.TdAmeritrade.Account.Instrument()
-                {
-                    Symbol = position.Instrument.Symbol,
-                    AssetType = position.Instrument.AssetType
-                };
-
-                Models.TdAmeritrade.Order.OrderLeg orderLeg = new Models.TdAmeritrade.Order.OrderLeg()
-                {
-                    Instruction = "SELL",
-                    Quantity = position.LongQuantity,
-                    Instrument = instrument
-                };
-
-                Models.TdAmeritrade.Order.Limit order = new Models.TdAmeritrade.Order.Limit()
-                {
-                    OrderType = "LIMIT",
-                    Session = "NORMAL",
-                    Duration = "DAY",
-                    OrderStrategyType = "SINGLE",
-                    OrderLegCollection = new Models.TdAmeritrade.Order.OrderLeg[] { orderLeg },
-                    Price = price
-                };
-                */
-                //Modules.TdAmeritrade.Order.PlaceOrder(account, order);
             }
         }
     }

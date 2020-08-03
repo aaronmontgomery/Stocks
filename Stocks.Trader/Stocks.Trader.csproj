@@ -18,5 +18,5 @@
     <ProjectReference Include="..\Stocks.Modules\Stocks.Modules.csproj" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties watch_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>
