@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UserSecretsId>dotnet-Stocks.Trader-D9B2B6D9-B1B1-473D-B1B3-29402BD48CBE</UserSecretsId>
+    <UserSecretsId>dotnet-Stocks.Service-6D2C2B1A-9D0F-4B56-BE9A-AEB8962D87AC</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,11 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Stocks.Data\Stocks.Data.csproj" />
-    <ProjectReference Include="..\Stocks.Entities\Stocks.Entities.csproj" />
     <ProjectReference Include="..\Stocks.Models\Stocks.Models.csproj" />
     <ProjectReference Include="..\Stocks.Modules\Stocks.Modules.csproj" />
   </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

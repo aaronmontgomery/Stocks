@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "Stocks.Trader": {
+    "Stocks.Service": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"

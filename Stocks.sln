@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stocks.Data", "Stocks.Data\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stocks.Modules", "Stocks.Modules\Stocks.Modules.csproj", "{68EAC2DF-9FA9-4E10-8E07-497A7992885B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stocks.Trader", "Stocks.Trader\Stocks.Trader.csproj", "{645203BE-7D91-4ED9-BDD6-C04FFF5AED64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stocks.Service", "Stocks.Service\Stocks.Service.csproj", "{02FEF495-40B7-45E5-BED8-190B7FBF975A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,10 @@ Global
 		{68EAC2DF-9FA9-4E10-8E07-497A7992885B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68EAC2DF-9FA9-4E10-8E07-497A7992885B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68EAC2DF-9FA9-4E10-8E07-497A7992885B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{645203BE-7D91-4ED9-BDD6-C04FFF5AED64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{645203BE-7D91-4ED9-BDD6-C04FFF5AED64}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{645203BE-7D91-4ED9-BDD6-C04FFF5AED64}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{645203BE-7D91-4ED9-BDD6-C04FFF5AED64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02FEF495-40B7-45E5-BED8-190B7FBF975A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02FEF495-40B7-45E5-BED8-190B7FBF975A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02FEF495-40B7-45E5-BED8-190B7FBF975A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02FEF495-40B7-45E5-BED8-190B7FBF975A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
