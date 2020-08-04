@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,17 +33,38 @@ namespace Stocks.Trader
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            Dictionary<string, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<string, IEnumerable<Models.PriceDelta>>();
             while (!stoppingToken.IsCancellationRequested)
             {
                 Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
                 IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
-                Dictionary<string, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<string, IEnumerable<Models.PriceDelta>>();
-                foreach (Models.TdAmeritrade.Account.Account account in accounts)
+                if (!accountPriceDeltas.All(x => accounts.Select(x => x.SecuritiesAccount.AccountId).Contains(x.Key)))
                 {
-                    IEnumerable<Models.PriceDelta> priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account);
-                    _logger.LogInformation("GetPriceDeltasAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
-                    accountPriceDeltas[account.SecuritiesAccount.AccountId] = await Modules.Merchant.GetQuotesAsync(priceDeltas);
-                    _logger.LogInformation("GetQuotesAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
+                    var accountPriceDeltasToRemove = accountPriceDeltas.Where(x => !accounts.Select(x => x.SecuritiesAccount.AccountId).Contains(x.Key));
+                    foreach (var accountPriceDelta in accountPriceDeltasToRemove)
+                    {
+                        accountPriceDeltas.Remove(accountPriceDelta.Key);
+                    }
+                }
+
+                else
+                {
+                    foreach (Models.TdAmeritrade.Account.Account account in accounts)
+                    {
+                        IEnumerable<Models.PriceDelta> priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account);
+                        _logger.LogInformation("GetPriceDeltasAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
+                        priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
+                        _logger.LogInformation("GetQuotesAsync completed: {time} {accountId}", DateTime.UtcNow, account.SecuritiesAccount.AccountId);
+                        if (accountPriceDeltas.ContainsKey(account.SecuritiesAccount.AccountId))
+                        {
+                            accountPriceDeltas[account.SecuritiesAccount.AccountId] = priceDeltas;
+                        }
+
+                        else
+                        {
+                            accountPriceDeltas.Add(account.SecuritiesAccount.AccountId, priceDeltas);
+                        }
+                    }
                 }
 
                 await Task.Delay(60000, stoppingToken);
