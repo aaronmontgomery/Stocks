@@ -33,30 +33,32 @@ namespace Stocks.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Dictionary<Models.TdAmeritrade.Account.Account, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<Models.TdAmeritrade.Account.Account, IEnumerable<Models.PriceDelta>>();
+            Dictionary<string, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<string, IEnumerable<Models.PriceDelta>>();
             while (!stoppingToken.IsCancellationRequested)
             {
                 Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
                 IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
-
-                // if account in accountPriceDeltas and not in accounts then remove from accountPriceDeltas
-                var accountPriceDeltasToRemove = accountPriceDeltas.Where(x => !accounts.Select(x => x.SecuritiesAccount.AccountId).Contains(x.Key.SecuritiesAccount.AccountId));
+                var accountPriceDeltasToRemove = accountPriceDeltas.Where(x => !accounts.Select(x => x.SecuritiesAccount.AccountId).Contains(x.Key));
                 foreach (var accountPriceDeltaToRemove in accountPriceDeltasToRemove)
                 {
                     accountPriceDeltas.Remove(accountPriceDeltaToRemove.Key);
                 }
 
-                // if account in accounts and not in accountPriceDeltas then add to accountPriceDeltas
-                var accountsToAdd = accounts.Where(x => !accountPriceDeltas.Select(x => x.Key.SecuritiesAccount.AccountId).Contains(x.SecuritiesAccount.AccountId));
-
-                // update existing accountPriceDeltas and add new accountPriceDeltas
                 foreach (Models.TdAmeritrade.Account.Account account in accounts)
                 {
                     IEnumerable<Models.PriceDelta> priceDeltas = await Modules.Merchant.GetPriceDeltasAsync(account);
-                    _logger.LogInformation("GetPriceDeltasAsync completed: {time}", DateTime.UtcNow);
+                    _logger.LogInformation("{accountId} GetPriceDeltasAsync completed: {time}", account.SecuritiesAccount.AccountId, DateTime.UtcNow);
                     priceDeltas = await Modules.Merchant.GetQuotesAsync(priceDeltas);
-                    _logger.LogInformation("GetQuotesAsync completed: {time}", DateTime.UtcNow);
-                    accountPriceDeltas.Add(account, priceDeltas);
+                    _logger.LogInformation("{accountId} GetQuotesAsync completed: {time}", account.SecuritiesAccount.AccountId, DateTime.UtcNow);
+                    if (accountPriceDeltas.ContainsKey(account.SecuritiesAccount.AccountId))
+                    {
+                        accountPriceDeltas[account.SecuritiesAccount.AccountId] = priceDeltas;
+                    }
+
+                    else
+                    {
+                        accountPriceDeltas.Add(account.SecuritiesAccount.AccountId, priceDeltas);
+                    }
                 }
 
                 await Task.Delay(60000, stoppingToken);
