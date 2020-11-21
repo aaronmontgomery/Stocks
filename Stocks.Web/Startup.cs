@@ -24,7 +24,7 @@ namespace Stocks.Web
             });
             services.AddControllersWithViews();
             services.AddSignalR();
-            services.AddHostedService<Services.StocksWorker>();
+            //services.AddHostedService<Services.StocksWorker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

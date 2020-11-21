@@ -20,7 +20,7 @@ namespace Stocks.Web.Hubs
         public async Task GetPriceHistoryAsync(object tickerTableSelectedRowData, object priceHistoryDateRange)
         {
             Entities.Ticker ticker = JsonConvert.DeserializeObject<Entities.Ticker>(tickerTableSelectedRowData.ToString());
-            _logger.LogInformation($"GetPriceHistory {ticker.Symbol} {Context.ConnectionId}");
+            _logger.LogInformation($"GetPriceHistoryAsync {ticker.Symbol} {Context.ConnectionId}");
             DateTimeRange dateTimeRange = JsonConvert.DeserializeObject<DateTimeRange>(priceHistoryDateRange.ToString());
             await Clients.Caller.SendCoreAsync("drawPriceHistory", new object[]
             {
@@ -31,7 +31,7 @@ namespace Stocks.Web.Hubs
 
         public async Task GetPriceHistoryDifferentialAsync(object analyticsDateRange)
         {
-            _logger.LogInformation($"GetPriceHistoryDifferential {Context.ConnectionId}");
+            _logger.LogInformation($"GetPriceHistoryDifferentialAsync {Context.ConnectionId}");
             using Entities.StocksContext stocksContext = new Entities.StocksContext();
             DateTimeRange dateTimeRange = JsonConvert.DeserializeObject<DateTimeRange>(analyticsDateRange.ToString());
             // debugging hub methods not running concurrently

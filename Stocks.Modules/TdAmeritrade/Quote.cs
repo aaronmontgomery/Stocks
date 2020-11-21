@@ -25,6 +25,17 @@ namespace Stocks.Modules.TdAmeritrade
             {
                 PropertyNameCaseInsensitive = true
             });
+
+            try
+            {
+                Models.TdAmeritrade.Quote.Quote quoteRtn = quote.Single();
+            }
+
+            catch (System.Exception exception)
+            {
+
+            }
+
             return quote.Single();
         }
 

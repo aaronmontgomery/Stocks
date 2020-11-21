@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-Stocks.Service-6D2C2B1A-9D0F-4B56-BE9A-AEB8962D87AC</UserSecretsId>
   </PropertyGroup>
 
