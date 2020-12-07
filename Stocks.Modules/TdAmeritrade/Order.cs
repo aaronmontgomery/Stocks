@@ -27,7 +27,7 @@ namespace Stocks.Modules.TdAmeritrade
             return orders;
         }
 
-        public static async Task PlaceOrder(Models.TdAmeritrade.Account.Account account, Models.TdAmeritrade.Order.Limit order)
+        public static async Task<string> PlaceOrder(Models.TdAmeritrade.Account.Account account, Models.TdAmeritrade.Order.Limit order)
         {
             string json = JsonSerializer.Serialize(order, new JsonSerializerOptions()
             {
@@ -37,6 +37,7 @@ namespace Stocks.Modules.TdAmeritrade
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{_settings["AccountsUri"]}/{account.SecuritiesAccount.AccountId}/orders", new StringContent(json, Encoding.UTF8, "application/json"));
             string content = await httpResponseMessage.Content.ReadAsStringAsync();
+            return content;
         }
 
         public static async Task CancelOrder(string accountId, uint orderId)

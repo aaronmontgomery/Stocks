@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -52,7 +52,7 @@ namespace Stocks.Service
                     _logger.LogInformation("{accountId} GetQuotesAsync completed: {time}", account.SecuritiesAccount.AccountId, DateTime.UtcNow);
                     if (accountPriceDeltas.ContainsKey(account.SecuritiesAccount.AccountId))
                     {
-                        accountPriceDeltas[account.SecuritiesAccount.AccountId] = priceDeltas;
+                        accountPriceDeltas[account.SecuritiesAccount.AccountId] = priceDeltas; 
                     }
 
                     else
