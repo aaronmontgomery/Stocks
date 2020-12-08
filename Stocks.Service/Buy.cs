@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Stocks.Service
 {
-    public class Test : BackgroundService
+    public class Buy : BackgroundService
     {
         readonly ILogger<Worker> _logger;
 
-        public Test(ILogger<Worker> logger)
+        public Buy(ILogger<Worker> logger)
         {
             _logger = logger;
         }
@@ -34,19 +34,16 @@ namespace Stocks.Service
         {
             bool orderPlaced = false;
 
-            Entities.StocksContext stocksContext = new Entities.StocksContext();
             Models.TdAmeritrade.Account.Account account = new Models.TdAmeritrade.Account.Account()
             {
-                SecuritiesAccount = stocksContext.SecuritiesAccount.Single()
+                SecuritiesAccount = new Entities.StocksContext().SecuritiesAccount.Single()
             };
-
-            Models.TdAmeritrade.Quote.Quote quote = await Modules.TdAmeritrade.Quote.GetQuoteAsync("BLSP");
 
             Models.TdAmeritrade.Account.Instrument instrument = new Models.TdAmeritrade.Account.Instrument()
             {
                 AssetType = "EQUITY",
-                Cusip = quote.Cusip,
-                Symbol = quote.Symbol
+                //Cusip = quote.Cusip,
+                Symbol = "BLSP"
             };
 
             Models.TdAmeritrade.Order.OrderLeg orderLeg = new Models.TdAmeritrade.Order.OrderLeg()
@@ -54,8 +51,8 @@ namespace Stocks.Service
                 OrderLegType = "EQUITY",
                 Instrument = instrument,
                 Instruction = "BUY",
-                PositionEffect = "AUTOMATIC",
-                Quantity = 100000,
+                //PositionEffect = "AUTOMATIC",
+                Quantity = 400000,
                 QuantityType = "SHARES"
             };
 
@@ -64,19 +61,27 @@ namespace Stocks.Service
                 OrderType = "LIMIT",
                 Session = "NORMAL",
                 Duration = "DAY",
-                OrderStrategyType = "NONE",
+                OrderStrategyType = "OCO",
                 OrderLegCollection = new Models.TdAmeritrade.Order.OrderLeg[] { orderLeg },
-                Price = new decimal(0.0005)
+                Price = new decimal(0.001)
             };
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 TimeSpan time = DateTime.Now.TimeOfDay;
                 _logger.LogInformation($"{time.Hours}:{time.Minutes}:{time.Seconds}:{time.Milliseconds}");
-                if (time.Hours == 9 && time.Minutes > 30 && !orderPlaced)
+                if (time.Hours == 9 && time.Minutes > 30)
                 {
-                    orderPlaced = true;
-                    string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
+                    if (orderPlaced)
+                    {
+                        return;
+                    }
+
+                    else
+                    {
+                        orderPlaced = true;
+                        string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
+                    }
                 }
             }
         }

@@ -17,7 +17,8 @@ namespace Stocks.Service
                 .UseSystemd()
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<Worker>();
+                    //services.AddHostedService<Worker>();
+                    services.AddHostedService<Buy>();
                 })
                 .ConfigureLogging(logging =>
                 {
