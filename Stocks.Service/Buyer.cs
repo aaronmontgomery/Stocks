@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Stocks.Service
 {
-    public class Buy : BackgroundService
+    public class Buyer : BackgroundService
     {
         readonly ILogger<Worker> _logger;
 
-        public Buy(ILogger<Worker> logger)
+        public Buyer(ILogger<Worker> logger)
         {
             _logger = logger;
         }
@@ -32,8 +32,6 @@ namespace Stocks.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            bool orderPlaced = false;
-
             Models.TdAmeritrade.Account.Account account = new Models.TdAmeritrade.Account.Account()
             {
                 SecuritiesAccount = new Entities.StocksContext().SecuritiesAccount.Single()
@@ -66,22 +64,15 @@ namespace Stocks.Service
                 Price = new decimal(0.001)
             };
 
+            bool orderPlaced = false;
             while (!stoppingToken.IsCancellationRequested)
             {
                 TimeSpan time = DateTime.Now.TimeOfDay;
                 _logger.LogInformation($"{time.Hours}:{time.Minutes}:{time.Seconds}:{time.Milliseconds}");
-                if (time.Hours == 9 && time.Minutes > 30)
+                if (time.Hours == 9 && time.Minutes > 30 && !orderPlaced)
                 {
-                    if (orderPlaced)
-                    {
-                        return;
-                    }
-
-                    else
-                    {
-                        orderPlaced = true;
-                        string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
-                    }
+                    orderPlaced = true;
+                    string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
                 }
             }
         }
