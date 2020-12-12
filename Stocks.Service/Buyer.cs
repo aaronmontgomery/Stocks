@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Stocks.Service
 {
-    public class Buyer : BackgroundService
+    public class Buy : BackgroundService
     {
         readonly ILogger<Worker> _logger;
 
-        public Buyer(ILogger<Worker> logger)
+        public Buy(ILogger<Worker> logger)
         {
             _logger = logger;
         }
@@ -50,7 +50,7 @@ namespace Stocks.Service
                 Instrument = instrument,
                 Instruction = "BUY",
                 //PositionEffect = "AUTOMATIC",
-                Quantity = 400000,
+                Quantity = 500000,
                 QuantityType = "SHARES"
             };
 
@@ -61,7 +61,7 @@ namespace Stocks.Service
                 Duration = "DAY",
                 OrderStrategyType = "OCO",
                 OrderLegCollection = new Models.TdAmeritrade.Order.OrderLeg[] { orderLeg },
-                Price = new decimal(0.001)
+                Price = new decimal(0.0005)
             };
 
             bool orderPlaced = false;
@@ -69,10 +69,19 @@ namespace Stocks.Service
             {
                 TimeSpan time = DateTime.Now.TimeOfDay;
                 _logger.LogInformation($"{time.Hours}:{time.Minutes}:{time.Seconds}:{time.Milliseconds}");
-                if (time.Hours == 9 && time.Minutes > 30 && !orderPlaced)
+                if (time.Hours == 9 && time.Minutes >= 30)
                 {
-                    orderPlaced = true;
-                    string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
+                    if (orderPlaced)
+                    {
+                        return;
+                    }
+
+                    else
+                    {
+                        orderPlaced = true;
+                        string content = await Modules.TdAmeritrade.Order.PlaceOrder(account, limit);
+                        _logger.LogInformation($"Buy completed: {content}");
+                    }
                 }
             }
         }

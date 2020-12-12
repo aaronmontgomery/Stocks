@@ -18,7 +18,7 @@ namespace Stocks.Service
                 .ConfigureServices((hostContext, services) =>
                 {
                     //services.AddHostedService<Worker>();
-                    services.AddHostedService<Buyer>();
+                    services.AddHostedService<Buy>();
                 })
                 .ConfigureLogging(logging =>
                 {
