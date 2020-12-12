@@ -9,9 +9,9 @@ namespace Stocks.Service
 {
     public class Buy : BackgroundService
     {
-        readonly ILogger<Worker> _logger;
+        readonly ILogger<Buy> _logger;
 
-        public Buy(ILogger<Worker> logger)
+        public Buy(ILogger<Buy> logger)
         {
             _logger = logger;
         }
