@@ -17,7 +17,7 @@ namespace Stocks.Modules.TdAmeritrade
         public static async Task<Models.TdAmeritrade.Quote.Quote> GetQuoteAsync(string symbol)
         {
             string quoteUri = $"{_settings["MarketDataUri"]}/{WebUtility.UrlEncode(symbol)}/quotes?apikey={_settings["ApiKey"]}";
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync(quoteUri);
             string json = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -42,7 +42,7 @@ namespace Stocks.Modules.TdAmeritrade
         public static async Task<IEnumerable<Models.TdAmeritrade.Quote.Quote>> GetQuotesAsync(IEnumerable<string> symbols)
         {
             string quoteUri = $"{_settings["MarketDataUri"]}/quotes?apikey={_settings["ApiKey"]}&symbol={WebUtility.UrlEncode(string.Join(',', symbols))}";
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync(quoteUri);
             string json = await httpResponseMessage.Content.ReadAsStringAsync();

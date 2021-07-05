@@ -16,7 +16,7 @@ namespace Stocks.Modules.TdAmeritrade
 
         public static async Task<IEnumerable<Models.TdAmeritrade.Order.Order>> GetOrdersByPath(string accountId)
         {
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_settings["AccountsUri"]}/{accountId}/orders");
             string json = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -33,7 +33,7 @@ namespace Stocks.Modules.TdAmeritrade
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{_settings["AccountsUri"]}/{account.SecuritiesAccount.AccountId}/orders", new StringContent(json, Encoding.UTF8, "application/json"));
             string content = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -42,7 +42,7 @@ namespace Stocks.Modules.TdAmeritrade
 
         public static async Task CancelOrder(string accountId, uint orderId)
         {
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"{_settings["AccountsUri"]}/{accountId}/orders/{orderId}");
         }

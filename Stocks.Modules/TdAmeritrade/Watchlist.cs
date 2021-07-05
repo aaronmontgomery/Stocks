@@ -15,7 +15,7 @@ namespace Stocks.Modules.TdAmeritrade
 
         public static async Task<IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist>> GetWatchlistsForMultipleAccountsAsync()
         {
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization .Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_settings["AccountsUri"]}/watchlists");
             string json = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -28,7 +28,7 @@ namespace Stocks.Modules.TdAmeritrade
 
         public static async Task<IEnumerable<Models.TdAmeritrade.Watchlist.Watchlist>> GetWatchListsForSingleAccountAsync(string accountId)
         {
-            Entities.Authorization authorization = Authorization.Update();
+            Entities.Authorization authorization = await Authorization.Update();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
             using HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_settings["AccountsUri"]}/{accountId}/watchlists");
             string json = await httpResponseMessage.Content.ReadAsStringAsync();

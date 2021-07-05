@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -16,10 +17,10 @@ namespace Stocks.Api.Controllers
         }
 
         [HttpGet]
-        public void PostAccessToken(string code)
+        public async Task PostAccessToken(string code)
         {
             _logger.LogInformation($"PostAccessToken {DateTime.Now}");
-            Modules.TdAmeritrade.Authorization.Update(code);
+            await Modules.TdAmeritrade.Authorization.Update(code);
         }
     }
 }

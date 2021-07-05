@@ -25,7 +25,7 @@ namespace Stocks.Web.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {Time}", DateTime.Now);
-                await Task.Delay(1000);
+                await Task.Delay(1000, stoppingToken);
             }
         }
     }
