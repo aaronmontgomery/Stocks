@@ -4,43 +4,44 @@ using System.Text.Json;
 using System.Net.Http;
 using System.Collections.Generic;
 using Stocks.Models.TdAmeritrade.Authorization;
+using System.Threading.Tasks;
 
 namespace Stocks.Modules.TdAmeritrade
 {
     public static class Authorization
     {
-        private static readonly Entities.StocksContext _stocksContext = new Entities.StocksContext();
+        private static readonly Entities.StocksContext stocksContext = new Entities.StocksContext();
 
-        private static readonly Dictionary<string, string> _settings = new Entities.StocksContext().Setting.ToDictionary(x => x.Key, x => x.Value);
+        private static readonly Dictionary<string, string> settings = new Entities.StocksContext().Setting.ToDictionary(x => x.Key, x => x.Value);
 
-        private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient httpClient = new HttpClient();
 
-        public static Entities.Authorization Update(string code = null)
+        public async static Task<Entities.Authorization> Update(string code = null)
         {
             Entities.Authorization authorization;
             if (code != null)
             {
-                authorization = PostAccessToken(code);
-                _stocksContext.Authorization.RemoveRange(_stocksContext.Authorization);
-                _stocksContext.SaveChanges();
-                _stocksContext.Add(authorization);
-                _stocksContext.SaveChanges();
+                authorization = await PostAccessToken(code);
+                stocksContext.Authorization.RemoveRange(stocksContext.Authorization);
+                stocksContext.SaveChanges();
+                stocksContext.Add(authorization);
+                stocksContext.SaveChanges();
             }
 
             else
             {
                 try
                 {
-                    authorization = _stocksContext.Authorization.Single();
+                    authorization = stocksContext.Authorization.Single();
                     if (!authorization.IsRefreshTokenExpired())
                     {
                         if (authorization.IsAccessTokenExpired())
                         {
-                            authorization = PostRefreshToken();
-                            _stocksContext.RemoveRange(_stocksContext.Authorization);
-                            _stocksContext.SaveChanges();
-                            _stocksContext.Add(authorization);
-                            _stocksContext.SaveChanges();
+                            authorization = await PostRefreshToken();
+                            stocksContext.RemoveRange(stocksContext.Authorization);
+                            stocksContext.SaveChanges();
+                            stocksContext.Add(authorization);
+                            stocksContext.SaveChanges();
                         }
                     }
 
@@ -59,7 +60,7 @@ namespace Stocks.Modules.TdAmeritrade
             return authorization;
         }
 
-        private static Entities.Authorization PostAccessToken(string code)
+        private async static Task<Entities.Authorization> PostAccessToken(string code)
         {
             Dictionary<string, string> postAccessToken = new Dictionary<string, string>()
             {
@@ -67,11 +68,11 @@ namespace Stocks.Modules.TdAmeritrade
                 { "refresh_token", string.Empty },
                 { "access_type", "offline" },
                 { "code", code },
-                { "client_id", $"{_settings["ApiKey"]}@AMER.OAUTHAP" },
+                { "client_id", $"{settings["ApiKey"]}@AMER.OAUTHAP" },
                 { "redirect_uri", $"https://localhost:44397/api/authorization/postaccesstoken" }
             };
-            using HttpResponseMessage httpResponseMessage = _httpClient.PostAsync(_settings["AuthenticationUri"], new FormUrlEncodedContent(postAccessToken)).Result;
-            string data = httpResponseMessage.Content.ReadAsStringAsync().Result;
+            using HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(settings["AuthenticationUri"], new FormUrlEncodedContent(postAccessToken));
+            string data = await httpResponseMessage.Content.ReadAsStringAsync();
             AuthorizationCode authorizationCode = JsonSerializer.Deserialize<AuthorizationCode>(data);
             Entities.Authorization authorization = new Entities.Authorization()
             {
@@ -86,20 +87,20 @@ namespace Stocks.Modules.TdAmeritrade
             return authorization;
         }
 
-        private static Entities.Authorization PostRefreshToken()
+        private async static Task<Entities.Authorization> PostRefreshToken()
         {
-            Entities.Authorization authorization = _stocksContext.Authorization.Single();
+            Entities.Authorization authorization = stocksContext.Authorization.Single();
             Dictionary<string, string> postAccessToken = new Dictionary<string, string>()
             {
                 { "grant_type", "refresh_token" },
                 { "refresh_token", authorization.RefreshToken },
                 { "access_type", string.Empty },
                 { "code", string.Empty },
-                { "client_id", $"{_settings["ApiKey"]}@AMER.OAUTHAP" },
+                { "client_id", $"{settings["ApiKey"]}@AMER.OAUTHAP" },
                 { "redirect_uri", string.Empty }
             };
-            using HttpResponseMessage httpResponseMessage = _httpClient.PostAsync(_settings["AuthenticationUri"], new FormUrlEncodedContent(postAccessToken)).Result;
-            string data = httpResponseMessage.Content.ReadAsStringAsync().Result;
+            using HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(settings["AuthenticationUri"], new FormUrlEncodedContent(postAccessToken));
+            string data = await httpResponseMessage.Content.ReadAsStringAsync();
             RefreshToken refreshToken = JsonSerializer.Deserialize<RefreshToken>(data);
             authorization.AccessToken = refreshToken.access_token;
             authorization.Scope = refreshToken.scope;

@@ -36,7 +36,7 @@ namespace Stocks.Service
             Dictionary<string, IEnumerable<Models.PriceDelta>> accountPriceDeltas = new Dictionary<string, IEnumerable<Models.PriceDelta>>();
             while (!stoppingToken.IsCancellationRequested)
             {
-                Entities.Authorization authorization = Modules.TdAmeritrade.Authorization.Update();
+                Entities.Authorization authorization = await Modules.TdAmeritrade.Authorization.Update();
                 IEnumerable<Models.TdAmeritrade.Account.Account> accounts = Modules.TdAmeritrade.Account.Update(authorization);
                 var accountPriceDeltasToRemove = accountPriceDeltas.Where(x => !accounts.Select(x => x.SecuritiesAccount.AccountId).Contains(x.Key));
                 foreach (var accountPriceDeltaToRemove in accountPriceDeltasToRemove)

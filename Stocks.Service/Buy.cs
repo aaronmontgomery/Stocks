@@ -41,7 +41,7 @@ namespace Stocks.Service
             {
                 AssetType = "EQUITY",
                 //Cusip = quote.Cusip,
-                Symbol = "BLSP"
+                Symbol = "CBBT"
             };
 
             Models.TdAmeritrade.Order.OrderLeg orderLeg = new Models.TdAmeritrade.Order.OrderLeg()
@@ -50,7 +50,7 @@ namespace Stocks.Service
                 Instrument = instrument,
                 Instruction = "BUY",
                 //PositionEffect = "AUTOMATIC",
-                Quantity = 500000,
+                Quantity = 105142,
                 QuantityType = "SHARES"
             };
 
@@ -61,7 +61,7 @@ namespace Stocks.Service
                 Duration = "DAY",
                 OrderStrategyType = "OCO",
                 OrderLegCollection = new Models.TdAmeritrade.Order.OrderLeg[] { orderLeg },
-                Price = new decimal(0.0005)
+                Price = new decimal(0.07)
             };
 
             bool orderPlaced = false;
