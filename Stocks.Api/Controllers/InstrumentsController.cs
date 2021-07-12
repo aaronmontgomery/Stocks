@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Stocks.Entities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Threading.Tasks;
 
 namespace Stocks.Api.Controllers
 {
@@ -19,32 +17,34 @@ namespace Stocks.Api.Controllers
     {
         private readonly ILogger<InstrumentsController> logger;
         private readonly StocksContext stocksContext = new StocksContext();
-        //private readonly Setting[] settings;
+        private readonly Dictionary<string, string> settings;
 
         public InstrumentsController(ILoggerFactory loggerFactory)
         {
             logger = loggerFactory.CreateLogger<InstrumentsController>();
+            settings = stocksContext.Setting.ToDictionary(x => x.Key, x => x.Value);
         }
 
         [HttpGet]
-        public async void Update()
+        public async Task GetInstrument()
         {
-            logger.LogInformation($"Update started {DateTime.Now}");
+            logger.LogInformation($"GetInstrument started {DateTime.Now}");
 
             using HttpClient httpClient = new HttpClient();
             Authorization authorization = await Modules.TdAmeritrade.Authorization.Update();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authorization.TokenType, authorization.AccessToken);
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Text.Plain));
 
-            for (ulong i = 0; i < 1000000000; i++)
+            uint end = 1000000000;
+            for (uint i = 0; i < end; i++)
             {
-                using HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("https://api.tdameritrade.com/v1/instruments/" + i);
-                string data = httpResponseMessage.Content.ReadAsStringAsync().Result;
-                using Stream stream = httpResponseMessage.Content.ReadAsStreamAsync().Result;
+                string value = i.ToString().PadLeft(end.ToString().Length - i.ToString().Length).Replace(' ', '0');
+                using HttpResponseMessage httpResponseMessage = await httpClient.GetAsync($"https://api.tdameritrade.com/v1/instruments/{value}?apikey={settings["ApiKey"]}"); // 594918104
+                string data = await httpResponseMessage.Content.ReadAsStringAsync();
+                using Stream stream = await httpResponseMessage.Content.ReadAsStreamAsync();
                 using StreamReader streamReader = new StreamReader(stream);
             }
 
-            logger.LogInformation($"Update completed {DateTime.Now}");
+            logger.LogInformation($"GetInstrument completed {DateTime.Now}");
         }
     }
 }
