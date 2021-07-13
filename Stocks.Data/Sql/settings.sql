@@ -6,6 +6,7 @@ INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('TdAmeritradeApi', 'Authent
 INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('TdAmeritradeApi', 'AccountsUri', 'https://api.tdameritrade.com/v1/accounts');
 INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('TdAmeritradeApi', 'MarketDataUri', 'https://api.tdameritrade.com/v1/marketdata');
 INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('TdAmeritradeApi', 'OrdersUri', 'https://api.tdameritrade.com/v1/orders');
+INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('TdAmeritradeApi', 'InstrumentsUri', 'https://api.tdameritrade.com/v1/instruments');
 
 -- Exchanges
 --INSERT INTO Setting ([Type], [Key], [Value]) VALUES ('Exchange', 'Nasdaq', 'https://old.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=nasdaq&render=download');
