@@ -29,7 +29,6 @@ namespace Stocks.Entities.Migrations
                 name: "SecuritiesAccount",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
                     AccountId = table.Column<string>(nullable: false),
                     Type = table.Column<string>(nullable: false),
                     RoundTrips = table.Column<int>(nullable: false),
@@ -39,8 +38,7 @@ namespace Stocks.Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SecuritiesAccount", x => x.Id);
-                    table.UniqueConstraint("AK_SecuritiesAccount_AccountId", x => x.AccountId);
+                    table.PrimaryKey("PK_SecuritiesAccount", x => x.AccountId);
                 });
 
             migrationBuilder.CreateTable(
@@ -80,7 +78,7 @@ namespace Stocks.Entities.Migrations
                 name: "CurrentBalance",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    SecuritiesAccountId = table.Column<string>(nullable: false),
                     AccruedInterest = table.Column<decimal>(nullable: false),
                     CashBalance = table.Column<decimal>(nullable: false),
                     CashReceipts = table.Column<decimal>(nullable: false),
@@ -100,18 +98,16 @@ namespace Stocks.Entities.Migrations
                     BondValue = table.Column<decimal>(nullable: false),
                     CashDebitCallValue = table.Column<decimal>(nullable: false),
                     UnsettledCash = table.Column<decimal>(nullable: false),
-                    SecuritiesAccountId = table.Column<Guid>(nullable: false),
                     Updated = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CurrentBalance", x => x.Id);
+                    table.PrimaryKey("PK_CurrentBalance", x => x.SecuritiesAccountId);
                     table.ForeignKey(
-                        name: "FK_CurrentBalance_SecuritiesAccount",
+                        name: "FK_CurrentBalance_SecuritiesAccount_SecuritiesAccountId",
                         column: x => x.SecuritiesAccountId,
                         principalTable: "SecuritiesAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "AccountId");
                 });
 
             migrationBuilder.CreateTable(
@@ -127,18 +123,18 @@ namespace Stocks.Entities.Migrations
                     SettledLongQuantity = table.Column<double>(nullable: false),
                     SettledShortQuantity = table.Column<double>(nullable: false),
                     MarketValue = table.Column<double>(nullable: false),
-                    SecuritiesAccountId = table.Column<Guid>(maxLength: 50, nullable: false),
+                    SecuritiesAccountId = table.Column<string>(nullable: true),
                     Updated = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Position", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Position_SecuritiesAccount",
+                        name: "FK_Position_SecuritiesAccount_SecuritiesAccountId",
                         column: x => x.SecuritiesAccountId,
                         principalTable: "SecuritiesAccount",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,9 +168,9 @@ namespace Stocks.Entities.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    AssetType = table.Column<string>(nullable: false),
-                    Cusip = table.Column<string>(nullable: false),
-                    Symbol = table.Column<string>(nullable: false),
+                    AssetType = table.Column<string>(nullable: true),
+                    Cusip = table.Column<string>(nullable: true),
+                    Symbol = table.Column<string>(nullable: true),
                     PositionId = table.Column<Guid>(nullable: false),
                     Updated = table.Column<DateTime>(nullable: false)
                 },
@@ -182,18 +178,12 @@ namespace Stocks.Entities.Migrations
                 {
                     table.PrimaryKey("PK_Instrument", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Instrument_Position",
+                        name: "FK_Instrument_Position_PositionId",
                         column: x => x.PositionId,
                         principalTable: "Position",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CurrentBalance_SecuritiesAccountId",
-                table: "CurrentBalance",
-                column: "SecuritiesAccountId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Instrument_PositionId",

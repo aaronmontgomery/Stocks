@@ -151,13 +151,13 @@ namespace Stocks.Entities
 
             modelBuilder.Entity<SecuritiesAccount>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.AccountId);
 
-                entity.HasAlternateKey(e => e.AccountId);
+                //entity.HasAlternateKey(e => e.Id);
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .IsRequired();
+                //entity.Property(e => e.Id)
+                //    .ValueGeneratedOnAdd()
+                //    .IsRequired();
 
                 entity.Property(e => e.AccountId)
                     .IsRequired();
@@ -176,11 +176,18 @@ namespace Stocks.Entities
 
                 entity.Property(e => e.Updated)
                     .IsRequired();
+
+                entity.HasOne(d => d.CurrentBalances)
+                    .WithOne(p => p.SecuritiesAccountIdNavigation)
+                    .HasForeignKey<SecuritiesAccount>(new string[] { "AccountId" });
             });
 
+            /*
             modelBuilder.Entity<Position>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.SecuritiesAccountId);
+
+                entity.HasAlternateKey(e => e.Id);
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedOnAdd()
@@ -251,14 +258,17 @@ namespace Stocks.Entities
                     .HasConstraintName("FK_Instrument_Position")
                     .IsRequired();
             });
+            */
 
             modelBuilder.Entity<CurrentBalance>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.SecuritiesAccountId);
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .IsRequired();
+                //entity.HasAlternateKey(e => e.Id);
+
+                //entity.Property(e => e.Id)
+                //    .ValueGeneratedOnAdd()
+                //    .IsRequired();
 
                 entity.Property(e => e.SecuritiesAccountId)
                     .IsRequired();
@@ -325,9 +335,8 @@ namespace Stocks.Entities
 
                 entity.HasOne(d => d.SecuritiesAccountIdNavigation)
                     .WithOne(p => p.CurrentBalances)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CurrentBalance_SecuritiesAccount")
-                    .IsRequired();
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .HasForeignKey<CurrentBalance>(new string[] { "SecuritiesAccountId" });
             });
 
             OnModelCreatingPartial(modelBuilder);

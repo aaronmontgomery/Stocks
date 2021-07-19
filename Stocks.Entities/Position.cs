@@ -22,7 +22,7 @@
         }
 
         public System.Guid Id { get; set; }
-        public System.Guid SecuritiesAccountId { get; set; }
+        public string SecuritiesAccountId { get; set; }
         public new virtual Instrument Instrument { get; set; }
         public System.DateTime Updated { get; set; }
         public virtual SecuritiesAccount SecuritiesAccountIdNavigation { get; set; }

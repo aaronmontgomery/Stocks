@@ -31,8 +31,8 @@
             Updated = System.DateTime.UtcNow;
         }
 
-        public System.Guid Id { get; set; }
-        public System.Guid SecuritiesAccountId { get; set; }
+        //public System.Guid Id { get; set; }
+        public string SecuritiesAccountId { get; set; }
         public System.DateTime Updated { get; set; }
         public virtual SecuritiesAccount SecuritiesAccountIdNavigation { get; set; }
     }

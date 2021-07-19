@@ -24,7 +24,7 @@
             Updated = System.DateTime.UtcNow;
         }
 
-        public System.Guid Id { get; set; }
+        //public System.Guid Id { get; set; }
         public new virtual System.Collections.Generic.ICollection<Position> Positions { get; set; }
         public new virtual CurrentBalance CurrentBalances { get; set; }
         public System.DateTime Updated { get; set; }

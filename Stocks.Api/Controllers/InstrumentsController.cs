@@ -47,7 +47,6 @@ namespace Stocks.Api.Controllers
                     long t = 501 - stopwatch.ElapsedMilliseconds;
                     if (t > 0)
                     {
-                        //Thread.Sleep((int)t);
                         await Task.Delay((int)t);
                     }
 
@@ -58,7 +57,8 @@ namespace Stocks.Api.Controllers
                     using HttpResponseMessage httpResponseMessage = await httpClient.GetAsync($"{settings["InstrumentsUri"]}/{value}?apikey={settings["ApiKey"]}"); // 594918104
                     string data = await httpResponseMessage.Content.ReadAsStringAsync();
                     using Stream stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-                    using StreamReader streamReader = new StreamReader(stream);
+                    Models.TdAmeritrade.Account.Instrument instrument = await System.Text.Json.JsonSerializer.DeserializeAsync<Models.TdAmeritrade.Account.Instrument>(stream);
+
                 }
 
                 catch (Exception exception)

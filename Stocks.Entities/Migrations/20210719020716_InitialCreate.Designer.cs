@@ -10,14 +10,14 @@ using Stocks.Entities;
 namespace Stocks.Entities.Migrations
 {
     [DbContext(typeof(StocksContext))]
-    [Migration("20200606044241_InitialCreate")]
+    [Migration("20210719020716_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -59,9 +59,8 @@ namespace Stocks.Entities.Migrations
 
             modelBuilder.Entity("Stocks.Entities.CurrentBalance", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("SecuritiesAccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("AccruedInterest")
                         .HasColumnType("decimal(18,2)");
@@ -108,9 +107,6 @@ namespace Stocks.Entities.Migrations
                     b.Property<decimal>("Savings")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("SecuritiesAccountId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("ShortMarketValue")
                         .HasColumnType("decimal(18,2)");
 
@@ -126,10 +122,7 @@ namespace Stocks.Entities.Migrations
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("SecuritiesAccountId")
-                        .IsUnique();
+                    b.HasKey("SecuritiesAccountId");
 
                     b.ToTable("CurrentBalance");
                 });
@@ -141,18 +134,15 @@ namespace Stocks.Entities.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetType")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cusip")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Symbol")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Updated")
@@ -187,9 +177,8 @@ namespace Stocks.Entities.Migrations
                     b.Property<double>("MarketValue")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("SecuritiesAccountId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasMaxLength(50);
+                    b.Property<string>("SecuritiesAccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("SettledLongQuantity")
                         .HasColumnType("float");
@@ -250,12 +239,7 @@ namespace Stocks.Entities.Migrations
 
             modelBuilder.Entity("Stocks.Entities.SecuritiesAccount", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("AccountId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsClosingOnlyRestricted")
@@ -274,9 +258,7 @@ namespace Stocks.Entities.Migrations
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("AccountId");
+                    b.HasKey("AccountId");
 
                     b.ToTable("SecuritiesAccount");
                 });
@@ -352,8 +334,7 @@ namespace Stocks.Entities.Migrations
                     b.HasOne("Stocks.Entities.SecuritiesAccount", "SecuritiesAccountIdNavigation")
                         .WithOne("CurrentBalances")
                         .HasForeignKey("Stocks.Entities.CurrentBalance", "SecuritiesAccountId")
-                        .HasConstraintName("FK_CurrentBalance_SecuritiesAccount")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -362,7 +343,6 @@ namespace Stocks.Entities.Migrations
                     b.HasOne("Stocks.Entities.Position", "PositionIdNavigation")
                         .WithOne("Instrument")
                         .HasForeignKey("Stocks.Entities.Instrument", "PositionId")
-                        .HasConstraintName("FK_Instrument_Position")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -371,10 +351,7 @@ namespace Stocks.Entities.Migrations
                 {
                     b.HasOne("Stocks.Entities.SecuritiesAccount", "SecuritiesAccountIdNavigation")
                         .WithMany("Positions")
-                        .HasForeignKey("SecuritiesAccountId")
-                        .HasConstraintName("FK_Position_SecuritiesAccount")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SecuritiesAccountId");
                 });
 
             modelBuilder.Entity("Stocks.Entities.PriceHistory", b =>
