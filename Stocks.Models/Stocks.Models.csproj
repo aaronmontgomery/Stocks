@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Authors>Aaron Montgomery</Authors>
+    <Product>Stocks</Product>
+    <Copyright>2020</Copyright>
+    <RepositoryUrl>https://github.com/aaronmontgomery</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
